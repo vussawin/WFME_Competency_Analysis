@@ -99,9 +99,6 @@ function AuthSystem({ onLogin, connected }) {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPw, setConfirmPw] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("FACULTY");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -111,7 +108,7 @@ function AuthSystem({ onLogin, connected }) {
   const [resetEmail, setResetEmail] = useState("");
   const otpRefs = useRef([]);
 
-  const clear = () => { setEmail(""); setPassword(""); setConfirmPw(""); setName(""); setError(""); setSuccess(""); };
+  const clear = () => { setEmail(""); setPassword(""); setError(""); setSuccess(""); };
 
   const handleLogin = async () => {
     setError(""); if (!email || !password) return setError("กรุณากรอก Email และ Password");
@@ -134,19 +131,6 @@ function AuthSystem({ onLogin, connected }) {
     setLoading(false);
     if (res.success) onLogin(res.user);
     else setError(res.error || "เข้าสู่ระบบไม่สำเร็จ");
-  };
-
-  const handleRegister = async () => {
-    setError("");
-    if (!name.trim()) return setError("กรุณากรอกชื่อ");
-    if (!email.includes("@")) return setError("Email ไม่ถูกต้อง");
-    if (password.length < 6) return setError("รหัสผ่าน 6 ตัวขึ้นไป");
-    if (password !== confirmPw) return setError("รหัสผ่านไม่ตรงกัน");
-    setLoading(true);
-    const res = await api.register({ email:email.trim(), password, name:name.trim(), role });
-    setLoading(false);
-    if (res.success) { setSuccess("ลงทะเบียนสำเร็จ!"); setTimeout(() => { clear(); setMode("login"); }, 1500); }
-    else setError(res.error);
   };
 
   const handleForgot = async () => {
@@ -172,13 +156,6 @@ function AuthSystem({ onLogin, connected }) {
   const I = { width:"100%", padding:"14px 16px", paddingLeft:44, borderRadius:12, border:`1.5px solid ${C.border}`, background:C.surfaceAlt, color:C.text, fontSize:14, outline:"none", transition:"all .25s", fontFamily:"'IBM Plex Sans Thai', sans-serif" };
   const Btn = { width:"100%", padding:"14px", borderRadius:12, border:"none", background:`linear-gradient(135deg,${C.primaryDark},${C.primary})`, color:"#fff", fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:"inherit", boxShadow:`0 4px 24px ${C.primaryGlow}` };
 
-  const demoUsers = [
-    { emoji:"👑", label:"ประธาน", email:"chair@med.edu", pw:"chair123" },
-    { emoji:"🎓", label:"อาจารย์", email:"faculty@med.edu", pw:"faculty123" },
-    { emoji:"📋", label:"QA", email:"qa@med.edu", pw:"qa1234" },
-    { emoji:"⚙️", label:"Admin", email:"admin@med.edu", pw:"admin123" },
-  ];
-
   return (
     <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:C.bg, position:"relative", overflow:"hidden", fontFamily:"'IBM Plex Sans Thai','Outfit',sans-serif" }}>
       <div style={{ position:"absolute", inset:0, backgroundImage:`linear-gradient(${C.border}22 1px,transparent 1px),linear-gradient(90deg,${C.border}22 1px,transparent 1px)`, backgroundSize:"60px 60px", pointerEvents:"none" }} />
@@ -190,7 +167,7 @@ function AuthSystem({ onLogin, connected }) {
           <div style={{ textAlign:"center", marginBottom:28 }}>
             <div style={{ width:56, height:56, borderRadius:16, background:`linear-gradient(135deg,${C.primaryDark},${C.teal})`, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:28, marginBottom:12, boxShadow:`0 8px 32px ${C.primaryGlow}` }}>🏥</div>
             <h1 style={{ fontSize:22, fontWeight:800, color:C.text, fontFamily:"'Outfit',sans-serif" }}>
-              {mode==="login"?"เข้าสู่ระบบ":mode==="register"?"ลงทะเบียน":mode==="forgot"?"ลืมรหัสผ่าน":"ยืนยัน OTP"}
+              {mode==="login"?"เข้าสู่ระบบ":mode==="forgot"?"ลืมรหัสผ่าน":"ยืนยัน OTP"}
             </h1>
             <p style={{ fontSize:13, color:C.textMuted, marginTop:6 }}>WFME Competency Analysis System</p>
             <div style={{ marginTop:8 }}><ConnectionBadge connected={connected} /></div>
@@ -205,25 +182,6 @@ function AuthSystem({ onLogin, connected }) {
               <div style={{ position:"relative" }}><span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", fontSize:16, opacity:.5 }}>🔒</span><input type={showPw?"text":"password"} placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} style={{...I,paddingRight:44}} onFocus={e=>e.target.style.borderColor=C.primary} onBlur={e=>e.target.style.borderColor=C.border} /><button onClick={()=>setShowPw(!showPw)} style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:16, opacity:.5 }}>{showPw?"🙈":"👁️"}</button></div>
               <div style={{ textAlign:"right" }}><button onClick={()=>{clear();setMode("forgot")}} style={{ background:"none", border:"none", color:C.primary, fontSize:13, cursor:"pointer", fontFamily:"inherit" }}>ลืมรหัสผ่าน?</button></div>
               <button onClick={handleLogin} disabled={loading} style={{...Btn, opacity:loading?.7:1}}>{loading ? <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}><Spinner size={16} color="#fff" /> กำลังตรวจสอบ...</span> : "เข้าสู่ระบบ →"}</button>
-              <div style={{ textAlign:"center", fontSize:13, color:C.textMuted }}>ยังไม่มีบัญชี? <button onClick={()=>{clear();setMode("register")}} style={{ background:"none", border:"none", color:C.primary, fontSize:13, cursor:"pointer", fontWeight:600, fontFamily:"inherit" }}>ลงทะเบียน</button></div>
-              <div style={{ marginTop:8, padding:16, borderRadius:12, background:C.surfaceAlt, border:`1px solid ${C.border}` }}>
-                <div style={{ fontSize:11, color:C.textDim, textTransform:"uppercase", letterSpacing:1, marginBottom:10, fontWeight:600 }}>🔑 บัญชีทดสอบ</div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
-                  {demoUsers.map(u => <button key={u.email} onClick={()=>{setEmail(u.email);setPassword(u.pw)}} style={{ padding:"8px 10px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.textMuted, cursor:"pointer", fontSize:11, textAlign:"left", fontFamily:"inherit", display:"flex", alignItems:"center", gap:6, transition:"all .2s" }} onMouseEnter={e=>e.currentTarget.style.background=C.surfaceHover} onMouseLeave={e=>e.currentTarget.style.background="transparent"}><span>{u.emoji}</span><span style={{fontSize:10}}>{u.label}</span></button>)}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {mode === "register" && (
-            <div onKeyDown={e=>e.key==="Enter"&&handleRegister()} style={{ display:"flex", flexDirection:"column", gap:14 }}>
-              <div style={{ position:"relative" }}><span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", fontSize:16, opacity:.5 }}>👤</span><input placeholder="ชื่อ-สกุล" value={name} onChange={e=>setName(e.target.value)} style={I} /></div>
-              <div style={{ position:"relative" }}><span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", fontSize:16, opacity:.5 }}>✉️</span><input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} style={I} /></div>
-              <div><div style={{ fontSize:12, color:C.textMuted, marginBottom:8 }}>บทบาท</div><div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>{Object.entries(ROLES).filter(([k])=>k!=="ADMIN").map(([k,v])=><button key={k} onClick={()=>setRole(k)} style={{ padding:"10px 12px", borderRadius:10, cursor:"pointer", fontSize:12, fontFamily:"inherit", border:`1.5px solid ${role===k?v.color:C.border}`, background:role===k?`${v.color}15`:"transparent", color:role===k?v.color:C.textMuted, display:"flex", alignItems:"center", gap:8 }}><span style={{fontSize:16}}>{v.icon}</span>{v.label}</button>)}</div></div>
-              <div style={{ position:"relative" }}><span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", fontSize:16, opacity:.5 }}>🔒</span><input type="password" placeholder="รหัสผ่าน (6 ตัวขึ้นไป)" value={password} onChange={e=>setPassword(e.target.value)} style={I} /></div>
-              <div style={{ position:"relative" }}><span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", fontSize:16, opacity:.5 }}>🔒</span><input type="password" placeholder="ยืนยันรหัสผ่าน" value={confirmPw} onChange={e=>setConfirmPw(e.target.value)} style={I} /></div>
-              <button onClick={handleRegister} disabled={loading} style={{...Btn, background:`linear-gradient(135deg,${C.accentDark},${C.accent})`, opacity:loading?.7:1}}>{loading?<span style={{display:"inline-flex",alignItems:"center",gap:8}}><Spinner size={16} color="#fff"/>กำลังสร้าง...</span>:"ลงทะเบียน"}</button>
-              <div style={{ textAlign:"center", fontSize:13, color:C.textMuted }}>มีบัญชีแล้ว? <button onClick={()=>{clear();setMode("login")}} style={{ background:"none", border:"none", color:C.primary, fontSize:13, cursor:"pointer", fontWeight:600, fontFamily:"inherit" }}>เข้าสู่ระบบ</button></div>
             </div>
           )}
 
@@ -304,6 +262,118 @@ return<div style={{position:"relative"}}><button onClick={()=>setOpen(!open)} st
 {open&&<><div onClick={()=>setOpen(false)} style={{position:"fixed",inset:0,zIndex:998}}/><div style={{position:"absolute",top:"calc(100% + 8px)",right:0,width:260,background:C.surface,border:`1px solid ${C.border}`,borderRadius:16,boxShadow:`0 16px 48px rgba(0,0,0,.5)`,zIndex:999,overflow:"hidden",animation:"fadeIn .2s"}}><div style={{padding:"16px 20px",borderBottom:`1px solid ${C.border}`,background:C.surfaceAlt}}><div style={{fontSize:14,fontWeight:700,color:C.text}}>{user.name}</div><div style={{fontSize:11,color:C.textMuted}}>{user.email}</div><Badge color={r.color}>{r.label}</Badge></div><div style={{padding:8}}><button onClick={onLogout} style={{width:"100%",padding:"10px 14px",borderRadius:8,border:"none",background:"transparent",color:C.danger,cursor:"pointer",fontSize:13,textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:10}} onMouseEnter={e=>e.target.style.background=`${C.danger}15`} onMouseLeave={e=>e.target.style.background="transparent"}>🚪 ออกจากระบบ</button></div></div></>}</div>}
 
 // ═══════════════════════════════════════════════════════════════
+//  ADMIN: USER MANAGEMENT PANEL (เฉพาะ ADMIN เท่านั้น)
+// ═══════════════════════════════════════════════════════════════
+function AdminUserPanel({ connected, onToast }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [role, setRole] = useState("FACULTY");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const clear = () => { setName(""); setEmail(""); setPassword(""); setConfirmPw(""); setError(""); setSuccess(""); };
+
+  const handleRegister = async () => {
+    setError(""); setSuccess("");
+    if (!name.trim()) return setError("กรุณากรอกชื่อ-สกุล");
+    if (!email.includes("@")) return setError("Email ไม่ถูกต้อง");
+    if (password.length < 6) return setError("รหัสผ่านต้อง 6 ตัวขึ้นไป");
+    if (password !== confirmPw) return setError("รหัสผ่านไม่ตรงกัน");
+    setLoading(true);
+    if (!connected || API_URL.includes("YOUR_")) {
+      setLoading(false);
+      setSuccess("(Demo) สร้างบัญชี " + email + " สำเร็จ");
+      setTimeout(clear, 2000);
+      return;
+    }
+    const res = await api.register({ email: email.trim(), password, name: name.trim(), role });
+    setLoading(false);
+    if (res.success) {
+      setSuccess("สร้างบัญชี " + email + " สำเร็จ!");
+      onToast({ msg: "✅ เพิ่มผู้ใช้ใหม่สำเร็จ", type: "success" });
+      setTimeout(clear, 2000);
+    } else setError(res.error || "ไม่สามารถสร้างบัญชีได้");
+  };
+
+  const IS = { width: "100%", padding: "12px 16px", paddingLeft: 42, borderRadius: 10, border: `1.5px solid ${C.border}`, background: C.surfaceAlt, color: C.text, fontSize: 14, outline: "none", fontFamily: "'IBM Plex Sans Thai', sans-serif" };
+
+  return (
+    <div>
+      <SectionCard title="👤 เพิ่มผู้ใช้ใหม่" subtitle="สร้างบัญชีผู้ใช้และกำหนดบทบาท (เฉพาะ Admin)">
+        <div style={{ maxWidth: 560 }}>
+          {error && <div style={{ padding: "12px 16px", borderRadius: 12, background: `${C.danger}15`, border: `1px solid ${C.danger}33`, color: C.danger, fontSize: 13, marginBottom: 16, animation: "fadeIn .3s", display: "flex", alignItems: "center", gap: 8 }}>⚠️ {error}</div>}
+          {success && <div style={{ padding: "12px 16px", borderRadius: 12, background: `${C.accent}15`, border: `1px solid ${C.accent}33`, color: C.accent, fontSize: 13, marginBottom: 16, animation: "fadeIn .3s", display: "flex", alignItems: "center", gap: 8 }}>✅ {success}</div>}
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, opacity: .5, pointerEvents: "none" }}>👤</span>
+              <input placeholder="ชื่อ-สกุล" value={name} onChange={e => setName(e.target.value)} style={IS} onFocus={e => e.target.style.borderColor = C.primary} onBlur={e => e.target.style.borderColor = C.border} />
+            </div>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, opacity: .5, pointerEvents: "none" }}>✉️</span>
+              <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} style={IS} onFocus={e => e.target.style.borderColor = C.primary} onBlur={e => e.target.style.borderColor = C.border} />
+            </div>
+
+            {/* Role selection — Admin สามารถเลือกได้ทุก role */}
+            <div>
+              <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>บทบาท</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                {Object.entries(ROLES).map(([k, v]) => (
+                  <button key={k} onClick={() => setRole(k)} style={{
+                    padding: "10px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontFamily: "inherit",
+                    border: `1.5px solid ${role === k ? v.color : C.border}`,
+                    background: role === k ? `${v.color}15` : "transparent",
+                    color: role === k ? v.color : C.textMuted,
+                    display: "flex", alignItems: "center", gap: 8, transition: "all .2s"
+                  }}>
+                    <span style={{ fontSize: 16 }}>{v.icon}</span>{v.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, opacity: .5, pointerEvents: "none" }}>🔒</span>
+              <input type="password" placeholder="รหัสผ่าน (6 ตัวขึ้นไป)" value={password} onChange={e => setPassword(e.target.value)} style={IS} onFocus={e => e.target.style.borderColor = C.primary} onBlur={e => e.target.style.borderColor = C.border} />
+            </div>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, opacity: .5, pointerEvents: "none" }}>🔒</span>
+              <input type="password" placeholder="ยืนยันรหัสผ่าน" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} style={IS} onFocus={e => e.target.style.borderColor = C.primary} onBlur={e => e.target.style.borderColor = C.border} />
+            </div>
+
+            <button onClick={handleRegister} disabled={loading} style={{
+              width: "100%", padding: "14px", borderRadius: 12, border: "none",
+              background: `linear-gradient(135deg, ${C.accentDark}, ${C.accent})`,
+              color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+              boxShadow: `0 4px 24px ${C.accent}33`, opacity: loading ? .7 : 1
+            }}>
+              {loading ? <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><Spinner size={16} color="#fff" /> กำลังสร้างบัญชี...</span> : "➕ สร้างบัญชีผู้ใช้ใหม่"}
+            </button>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="📋 บทบาทและสิทธิ์การเข้าถึง" subtitle="สรุปสิทธิ์ของแต่ละบทบาทในระบบ">
+        <DataTable columns={[
+          { key: "role", label: "บทบาท", render: (v, row) => <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 16 }}>{row.icon}</span><span style={{ color: row.color, fontWeight: 700 }}>{v}</span></span> },
+          { key: "view", label: "ดูข้อมูล", align: "center", render: v => v ? "✅" : "❌" },
+          { key: "input", label: "นำเข้าข้อมูล", align: "center", render: v => v ? "✅" : "❌" },
+          { key: "manage", label: "จัดการผู้ใช้", align: "center", render: v => v ? "✅" : "❌" },
+        ]} data={[
+          { role: "ประธานหลักสูตร", icon: "👑", color: C.gold, view: true, input: true, manage: false },
+          { role: "อาจารย์ผู้สอน", icon: "🎓", color: C.primary, view: true, input: true, manage: false },
+          { role: "ฝ่ายประกันคุณภาพ", icon: "📋", color: C.teal, view: true, input: false, manage: false },
+          { role: "ผู้ดูแลระบบ", icon: "⚙️", color: C.purple, view: true, input: true, manage: true },
+        ]} />
+      </SectionCard>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  MAIN APP
 // ═══════════════════════════════════════════════════════════════
 function genSample(){const r=(a,b)=>+(a+Math.random()*(b-a)).toFixed(1);return{
@@ -359,7 +429,7 @@ export default function App(){
 
   const sc=analysis?.status==="ดีเยี่ยม"?C.accent:analysis?.status==="ดี"?C.primary:analysis?.status==="ต้องปรับปรุง"?C.warn:C.danger;
   const canEdit=user&&(user.role==="CHAIR"||user.role==="ADMIN"||user.role==="FACULTY");
-  const navs=[{id:"dashboard",icon:"📊",l:"Dashboard"},{id:"plo",icon:"🎯",l:"PLO"},{id:"course",icon:"📚",l:"รายวิชา"},{id:"trend",icon:"📈",l:"แนวโน้ม"},{id:"findings",icon:"🔍",l:"ผลวิเคราะห์"}];
+  const navs=[{id:"dashboard",icon:"📊",l:"Dashboard"},{id:"plo",icon:"🎯",l:"PLO"},{id:"course",icon:"📚",l:"รายวิชา"},{id:"trend",icon:"📈",l:"แนวโน้ม"},{id:"findings",icon:"🔍",l:"ผลวิเคราะห์"},...(user?.role==="ADMIN"?[{id:"users",icon:"👥",l:"จัดการผู้ใช้"}]:[])];
 
   if(!user)return<><GlobalStyles/><AuthSystem onLogin={setUser} connected={connected}/></>;
 
@@ -436,6 +506,8 @@ export default function App(){
           <SectionCard title="📋 แผนดำเนินการ"><div style={{display:"flex",flexDirection:"column",gap:8,maxHeight:500,overflowY:"auto"}}>{analysis.actions.map((a,i)=><div key={i} style={{padding:"12px 16px",background:C.surfaceAlt,borderRadius:12,borderLeft:`3px solid ${a.priority==="เร่งด่วน"?C.danger:C.warn}`}}><Badge color={a.priority==="เร่งด่วน"?C.danger:C.warn}>{a.priority}</Badge><div style={{fontSize:12,color:C.text,lineHeight:1.6,marginTop:4}}>{a.action}</div></div>)}</div></SectionCard>
         </div>
       </div>}
+
+      {activeTab==="users"&&user?.role==="ADMIN"&&<AdminUserPanel connected={connected} onToast={setToast}/>}
     </div>
   </div>;
 }
