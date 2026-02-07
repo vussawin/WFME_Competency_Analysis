@@ -219,9 +219,17 @@ function PLOHeatmap({data}){const gc=v=>v>=90?"#3FB950":v>=80?"#58A6FF":v>=70?"#
 // ═══════════════════════════════════════════════════════════════
 //  DATA INPUT PANEL (บันทึกลง Google Sheets)
 // ═══════════════════════════════════════════════════════════════
-function DataInputPanel({data,onUpdate,onClose,onSaveToSheets,saving}){
+function DataInputPanel({data,onUpdate,onClose,onSaveToSheets,saving,onRefresh,connected}){
   const[tab,setTab]=useState("plo");const[ed,setEd]=useState(JSON.parse(JSON.stringify(data)));
+  const[refreshing,setRefreshing]=useState(false);
   const handleSave=async()=>{onUpdate(ed);await onSaveToSheets(ed,tab);onClose()};
+  const handleRefresh=async()=>{
+    if(!connected||!onRefresh){return}
+    setRefreshing(true);
+    const fresh=await onRefresh();
+    if(fresh){setEd(JSON.parse(JSON.stringify(fresh)))}
+    setRefreshing(false);
+  };
   const IS={background:C.surfaceAlt,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px",color:C.text,fontSize:13,width:"100%",outline:"none",fontFamily:"'JetBrains Mono',monospace"};
   const ts=a=>({padding:"8px 16px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,background:a?C.primary:"transparent",color:a?"#fff":C.textMuted,transition:"all .2s",fontFamily:"inherit"});
   return<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.7)",backdropFilter:"blur(8px)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
@@ -229,6 +237,7 @@ function DataInputPanel({data,onUpdate,onClose,onSaveToSheets,saving}){
       <div style={{padding:"20px 24px",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div><h2 style={{color:C.text,margin:0,fontSize:18,fontWeight:700}}>📝 แก้ไขข้อมูล → Google Sheets</h2><p style={{color:C.textDim,margin:"4px 0 0",fontSize:12}}>แก้ไขแล้วกดบันทึก จะเขียนลง Google Sheets ทันที</p></div>
         <div style={{display:"flex",gap:8}}>
+          <button onClick={handleRefresh} disabled={refreshing||!connected} title="ดึงข้อมูลล่าสุดจาก Google Sheets" style={{padding:"8px 16px",borderRadius:8,border:`1px solid ${C.border}`,background:refreshing?C.surfaceAlt:"transparent",color:connected?C.primary:C.textDim,cursor:connected?"pointer":"not-allowed",fontSize:12,fontWeight:600,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6,transition:"all .2s"}}>{refreshing?<><Spinner size={14} color={C.primary}/> กำลังดึง...</>:"🔄 Refresh จาก Sheets"}</button>
           <button onClick={handleSave} disabled={saving} style={{padding:"8px 16px",borderRadius:8,border:"none",background:C.accent,color:"#fff",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:"inherit",opacity:saving?.6:1}}>{saving?<span style={{display:"inline-flex",alignItems:"center",gap:6}}><Spinner size={14} color="#fff"/>บันทึก...</span>:"💾 บันทึกลง Sheets"}</button>
           <button onClick={onClose} style={{padding:"8px 16px",borderRadius:8,border:`1px solid ${C.border}`,background:"transparent",color:C.textMuted,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>✕</button>
         </div>
@@ -436,7 +445,11 @@ export default function App(){
   return<div style={{minHeight:"100vh",background:C.bg,color:C.text,fontFamily:"'IBM Plex Sans Thai','Outfit',sans-serif"}}>
     <GlobalStyles/>
     {toast&&<Toast message={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
-    {showInput&&<DataInputPanel data={data} onUpdate={setData} onClose={()=>setShowInput(false)} onSaveToSheets={handleSaveToSheets} saving={saving}/>}
+    {showInput&&<DataInputPanel data={data} onUpdate={setData} onClose={()=>setShowInput(false)} onSaveToSheets={handleSaveToSheets} saving={saving} connected={connected} onRefresh={async()=>{
+      const r=await api.getAllData();
+      if(r.success&&r.data){const d=r.data;d.radarData=data.radarData;d.assessmentQuality=data.assessmentQuality;d.studentFlow=data.studentFlow;setData(d);setToast({msg:"✅ ดึงข้อมูลล่าสุดจาก Google Sheets สำเร็จ",type:"success"});return d;}
+      else{setToast({msg:"❌ ดึงข้อมูลไม่สำเร็จ",type:"error"});return null;}
+    }}/>}
 
     {/* Header */}
     <div style={{background:C.glass,borderBottom:`1px solid ${C.border}`,padding:"12px 24px",position:"sticky",top:0,zIndex:100,backdropFilter:"blur(16px)"}}>
