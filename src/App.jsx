@@ -5,7 +5,7 @@ import _ from "lodash";
 // ═══════════════════════════════════════════════════════════════
 //  🔧 CONFIG — ใส่ URL จาก Google Apps Script ที่ Deploy แล้ว
 // ═══════════════════════════════════════════════════════════════
-const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbzh9J907XEK3iR3uAPtThwqQr9BaMhjWd2cqec1ieo_6kgC8Q3NOsWQpN-F7bpZ4HE8fg/exec";
 // ตัวอย่าง: "https://script.google.com/macros/s/AKfycbx.../exec"
 
 // ═══════════════════════════════════════════════════════════════
