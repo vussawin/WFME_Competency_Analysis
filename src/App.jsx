@@ -227,7 +227,7 @@ function DataInputPanel({data,onUpdate,onClose,onSaveToSheets,saving}){
   return<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.7)",backdropFilter:"blur(8px)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
     <div style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,width:"100%",maxWidth:900,maxHeight:"90vh",overflow:"hidden",display:"flex",flexDirection:"column"}}>
       <div style={{padding:"20px 24px",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div><h2 style={{color:C.text,margin:0,fontSize:18,fontWeight:700}}>📥 นำเข้าข้อมูล → Google Sheets</h2><p style={{color:C.textDim,margin:"4px 0 0",fontSize:12}}>แก้ไขแล้วกดบันทึก จะเขียนลง Google Sheets ทันที</p></div>
+        <div><h2 style={{color:C.text,margin:0,fontSize:18,fontWeight:700}}>📝 แก้ไขข้อมูล → Google Sheets</h2><p style={{color:C.textDim,margin:"4px 0 0",fontSize:12}}>แก้ไขแล้วกดบันทึก จะเขียนลง Google Sheets ทันที</p></div>
         <div style={{display:"flex",gap:8}}>
           <button onClick={handleSave} disabled={saving} style={{padding:"8px 16px",borderRadius:8,border:"none",background:C.accent,color:"#fff",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:"inherit",opacity:saving?.6:1}}>{saving?<span style={{display:"inline-flex",alignItems:"center",gap:6}}><Spinner size={14} color="#fff"/>บันทึก...</span>:"💾 บันทึกลง Sheets"}</button>
           <button onClick={onClose} style={{padding:"8px 16px",borderRadius:8,border:`1px solid ${C.border}`,background:"transparent",color:C.textMuted,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>✕</button>
@@ -360,7 +360,7 @@ function AdminUserPanel({ connected, onToast }) {
         <DataTable columns={[
           { key: "role", label: "บทบาท", render: (v, row) => <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 16 }}>{row.icon}</span><span style={{ color: row.color, fontWeight: 700 }}>{v}</span></span> },
           { key: "view", label: "ดูข้อมูล", align: "center", render: v => v ? "✅" : "❌" },
-          { key: "input", label: "นำเข้าข้อมูล", align: "center", render: v => v ? "✅" : "❌" },
+          { key: "input", label: "แก้ไขข้อมูล", align: "center", render: v => v ? "✅" : "❌" },
           { key: "manage", label: "จัดการผู้ใช้", align: "center", render: v => v ? "✅" : "❌" },
         ]} data={[
           { role: "ประธานหลักสูตร", icon: "👑", color: C.gold, view: true, input: true, manage: false },
@@ -448,7 +448,7 @@ export default function App(){
         <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
           <ConnectionBadge connected={connected} checking={checking}/>
           {analysis&&<Badge color={sc}>{analysis.status} ({analysis.overallScore.toFixed(1)}%)</Badge>}
-          {canEdit&&<button onClick={()=>setShowInput(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:`linear-gradient(135deg,${C.primaryDark},${C.primary})`,color:"#fff",cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",boxShadow:`0 2px 12px ${C.primaryGlow}`}}>📥 นำเข้าข้อมูล</button>}
+          {canEdit&&<button onClick={()=>setShowInput(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:`linear-gradient(135deg,${C.primaryDark},${C.primary})`,color:"#fff",cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",boxShadow:`0 2px 12px ${C.primaryGlow}`}}>📝 แก้ไขข้อมูล</button>}
           {loadingData&&<Spinner size={18}/>}
           <UserMenu user={user} onLogout={()=>{setUser(null);setActiveTab("dashboard")}}/>
         </div>
